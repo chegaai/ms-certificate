@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Certificate certificate microservice
+name: ms-certificate
+version: 0.1.0
