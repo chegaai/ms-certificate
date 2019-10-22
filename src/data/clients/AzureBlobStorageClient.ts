@@ -16,9 +16,9 @@ import {
 @injectable()
 export class AzureBlobStorageClient {
 
-  private ONE_MINUTE:number = 60000;
+  private ONE_MINUTE: number = 60000
   private containerURL: ContainerURL
-  private azureBlobURL:string = ''
+  private azureBlobURL: string = ''
   private containerName: string = ''
 
   constructor (
@@ -26,33 +26,33 @@ export class AzureBlobStorageClient {
     @inject('AzureBlobStorageAccountAccessKey') accountAccessKey: IAppConfig['azure']['storage']['accountAccessKey'],
     @inject('AzureBlobStorageContainerName') containerName: IAppConfig['azure']['storage']['containerName'], ) {
     this.azureBlobURL = `https://${accountName}.blob.core.windows.net`
-    this.containerName = containerName 
+    this.containerName = containerName
 
-    const credentials = new SharedKeyCredential(accountName, accountAccessKey);
-    const pipeline = StorageURL.newPipeline(credentials);
-    const serviceURL = new ServiceURL(this.azureBlobURL, pipeline);
-    this.containerURL = ContainerURL.fromServiceURL(serviceURL, this.containerName);
+    const credentials = new SharedKeyCredential(accountName, accountAccessKey)
+    const pipeline = StorageURL.newPipeline(credentials)
+    const serviceURL = new ServiceURL(this.azureBlobURL, pipeline)
+    this.containerURL = ContainerURL.fromServiceURL(serviceURL, this.containerName)
   }
 
-  async uploadBuffer(buff:Buffer) {
+  async uploadBuffer (buff: Buffer) {
 
-    const aborter = Aborter.timeout(30 * this.ONE_MINUTE);
+    const aborter = Aborter.timeout(30 * this.ONE_MINUTE)
     const imageName = `${new ObjectId()}.png`
-    const blockBlobURL = BlockBlobURL.fromContainerURL(this.containerURL, imageName);
+    const blockBlobURL = BlockBlobURL.fromContainerURL(this.containerURL, imageName)
 
     const uploadOptions = {
-        bufferSize: buff.byteLength,
-        maxBuffers: 5,
-    };
+      bufferSize: buff.byteLength,
+      maxBuffers: 5,
+    }
 
-    const stream = fs.createReadStream(buff);
+    const stream = fs.createReadStream(buff)
 
     await uploadStreamToBlockBlob(
-                    aborter, 
-                    stream, 
-                    blockBlobURL, 
-                    uploadOptions.bufferSize, 
-                    uploadOptions.maxBuffers);
+      aborter,
+      stream,
+      blockBlobURL,
+      uploadOptions.bufferSize,
+      uploadOptions.maxBuffers)
 
     return `${this.azureBlobURL}/${this.containerName}/${imageName}`
   }

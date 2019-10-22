@@ -1,10 +1,10 @@
 // import axios from 'axios'
 import { render } from 'ejs'
-import { JSDOM }  from 'jsdom'
+import { JSDOM } from 'jsdom'
 import { ObjectId } from 'bson'
 import { injectable } from 'tsyringe'
 import { titleCase } from 'change-case'
-import htmlToImage from 'html-to-image';
+import htmlToImage from 'html-to-image'
 import { UserClient } from '../data/clients/UserClient'
 import { EventClient } from '../data/clients/EventClient'
 import { TemplateClient } from '../data/clients/TemplateClient'
@@ -34,13 +34,13 @@ export class CertificateService {
   }
 
   private async createBuffer (htmlContent: string): Promise<Buffer> {
-    const element = new JSDOM(htmlContent).window.document.body;
+    const element = new JSDOM(htmlContent).window.document.body
     const dataUrl = await htmlToImage.toPng(element)
-    const base64 = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "")
-    return Buffer.from(base64,"base64");
+    const base64 = dataUrl.replace(/^data:image\/(png|jpg)base64,/, "")
+    return Buffer.from(base64, "base64")
   }
 
-  private async generateCertificateBuffer(ateendee: string, event: string, templateHTML: string, startDate: Date, endDate: Date): Promise<Buffer> {
+  private async generateCertificateBuffer (ateendee: string, event: string, templateHTML: string, startDate: Date, endDate: Date): Promise<Buffer> {
     const data = {
       event: {
         name: titleCase(event),
@@ -51,7 +51,7 @@ export class CertificateService {
         name: titleCase(ateendee)
       }
     }
-    
+
     const html = await this.renderTemplate(templateHTML, data)
     return this.createBuffer(html)
   }
@@ -68,12 +68,12 @@ export class CertificateService {
 
     if (await this.repository.existsByEventIdAndEmail(event.id, ateendee.email))
       throw new CertificateAlreadyExistsError(event.id, ateendee.id)
-    
+
     const buff = await this.generateCertificateBuffer(
-      ateendee.name, 
-      event.name, 
-      template.html, 
-      new Date(event.hour.start), 
+      ateendee.name,
+      event.name,
+      template.html,
+      new Date(event.hour.start),
       new Date(event.hour.end)
     )
 
