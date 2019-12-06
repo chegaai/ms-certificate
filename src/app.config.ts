@@ -24,7 +24,8 @@ export interface IAppConfig extends IExpressoConfigOptions {
     storage: {
       accountName: string,
       accountAccessKey: string,
-      containerName: string
+      containerName: string,
+      timeOut: number
     }
   }
 }
@@ -55,9 +56,10 @@ export const config: IAppConfig = {
   },
   azure:{
     storage: {
-      accountName: env.get('AZURE_STORAGE_ACCOUNT_NAME', ''),
-      accountAccessKey: env.get('AZURE_STORAGE_ACCOUNT_ACCESS_KEY', ''),
-      containerName: env.get('AZURE_STORAGE_CONTAINER_NAME', 'certificates')
+      accountName: env.get('MS_CERTIFICATE_AZURE_STORAGE_ACCOUNT_NAME', 'chegaai'),
+      accountAccessKey: env.get('MS_CERTTIFICATE_AZURE_STORAGE_ACCOUNT_ACCESS_KEY', ''),
+      containerName: env.get('MS_CERTIFICATE_AZURE_STORAGE_CONTAINER_NAME', 'certificates'),
+      timeOut: 90000
     }
   }
 }

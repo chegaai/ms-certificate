@@ -21,8 +21,8 @@ export class CertificateRepository extends MongodbRepository<Certificate, Serial
     return Certificate.create(_id, certificateData)
   }
 
-  async existsByEventIdAndEmail (eventId: string, ateendeeId: string): Promise<boolean> {
-    return this.existsBy({ eventId, ateendeeId, deletedAt: null })
+  async existsByEventIdAndEmail (eventId: string, attendeeId: string): Promise<boolean> {
+    return this.existsBy({ eventId, attendeeId, deletedAt: null })
   }
 
   async getAll (page: number, size: number): Promise<PaginatedQueryResult<Certificate>> {
@@ -31,5 +31,9 @@ export class CertificateRepository extends MongodbRepository<Certificate, Serial
 
   async findManyById (communityIds: ObjectId[], page: number, size: number): Promise<PaginatedQueryResult<Certificate>> {
     return this.runPaginatedQuery({ _id: { $in: communityIds }, deletedAt: null }, page, size)
+  }
+
+  async getAllByAttendeeId (attendeeId: ObjectId, page: number, size: number): Promise<PaginatedQueryResult<Certificate>> {
+    return this.runPaginatedQuery({ deletedAt: null, attendeeId }, page, size)
   }
 }

@@ -16,7 +16,7 @@ export class UserClient {
 
   async findById (id: ObjectId | string) {
     try {
-      const { data } = await this.client.get(`/users/${new ObjectId(id).toHexString()}`)
+      const { data } = await this.client.get(`/${new ObjectId(id).toHexString()}`)
       return data
     } catch (error) {
       if (!error.response) throw new UnresponsiveServiceError('users')

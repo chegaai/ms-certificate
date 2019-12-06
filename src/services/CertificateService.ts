@@ -1,21 +1,21 @@
 // import axios from 'axios'
-import { render } from 'ejs'
-import { JSDOM } from 'jsdom'
 import { ObjectId } from 'bson'
 import { injectable } from 'tsyringe'
 import { titleCase } from 'change-case'
-import htmlToImage from 'html-to-image'
+import { renderTemplate } from '../utils/HTML'
+import { screenshotFromHtml } from '../utils/HTML'
 import { UserClient } from '../data/clients/UserClient'
 import { EventClient } from '../data/clients/EventClient'
 import { TemplateClient } from '../data/clients/TemplateClient'
-import { AzureBlobStorageClient } from '../data/clients/AzureBlobStorageClient'
+import { BlobStorageClient } from '../data/clients/BlobStorageClient'
 import { Certificate } from '../domain/certificate/Certificate'
 import { UserNotFoundError } from '../domain/certificate/errors/UserNotFoundError'
 import { CertificateRepository } from '../data/repositories/CertificateRepository'
 import { EventNotFoundError } from '../domain/certificate/errors/EventNotFoundError'
 import { TemplateNotFoundError } from '../domain/certificate/errors/TemplateNotFoundError'
 import { CreateCertificateData } from '../domain/certificate/structures/CreateCertificateData'
-import { CertificateAlreadyExistsError } from '../domain/certificate/errors/CertificateAlreadyExistsError'
+import { PaginatedQueryResult } from '@nindoo/mongodb-data-layer'
+// import { CertificateAlreadyExistsError } from '../domain/certificate/errors/CertificateAlreadyExistsError'
 
 
 @injectable()
@@ -25,63 +25,60 @@ export class CertificateService {
     private readonly userClient: UserClient,
     private readonly eventClient: EventClient,
     private readonly templateClient: TemplateClient,
-    private readonly azureBlobStorageClient: AzureBlobStorageClient,
+    private readonly blobStorageClient: BlobStorageClient,
   ) { }
 
-  // TODO: fix this "any" type
-  private async renderTemplate (template: string, data: any): Promise<string> {
-    return render(template, data)
+  private async uploadBase64(base64: string){
+    const url = await this.blobStorageClient.upload(base64)
+    if(!url)
+      throw Error() //TODO: throw better error handler
+    return url
   }
 
-  private async createBuffer (htmlContent: string): Promise<Buffer> {
-    const element = new JSDOM(htmlContent).window.document.body
-    const dataUrl = await htmlToImage.toPng(element)
-    const base64 = dataUrl.replace(/^data:image\/(png|jpg)base64,/, "")
-    return Buffer.from(base64, "base64")
-  }
-
-  private async generateCertificateBuffer (ateendee: string, event: string, templateHTML: string, startDate: Date, endDate: Date): Promise<Buffer> {
+  private async generateCertificateBase64 (attendeeName: string, eventName: string, templateHTML: string, startDate: Date, endDate: Date): Promise<string> {
     const data = {
       event: {
-        name: titleCase(event),
-        date: startDate.getDate(),
+        name: titleCase(eventName),
+        date: startDate,
         workload: startDate.getHours() - endDate.getHours()
       },
       user: {
-        name: titleCase(ateendee)
+        name: titleCase(attendeeName)
       }
     }
 
-    const html = await this.renderTemplate(templateHTML, data)
-    return this.createBuffer(html)
+    const html = await renderTemplate(templateHTML, data)
+    return screenshotFromHtml({ html })
   }
 
   async create (creationData: CreateCertificateData): Promise<Certificate> {
     const event = await this.eventClient.findById(creationData.eventId)
     if (!event) throw new EventNotFoundError(creationData.eventId as string)
 
-    const ateendee = await this.userClient.findById(creationData.ateendeeId)
-    if (!ateendee) throw new UserNotFoundError(creationData.ateendeeId as string)
+    const attendee = await this.userClient.findById(creationData.attendeeId)
+    if (!attendee) throw new UserNotFoundError(creationData.attendeeId as string)
 
     const template = await this.templateClient.findById(creationData.templateId)
     if (!template) throw new TemplateNotFoundError(creationData.templateId as string)
 
-    if (await this.repository.existsByEventIdAndEmail(event.id, ateendee.email))
-      throw new CertificateAlreadyExistsError(event.id, ateendee.id)
+    // if (await this.repository.existsByEventIdAndEmail(event._id, attendee.email))
+    //   throw new CertificateAlreadyExistsError(event._id, attendee.id)
 
-    const buff = await this.generateCertificateBuffer(
-      ateendee.name,
+    const base64 = await this.generateCertificateBase64(
+      attendee.name,
       event.name,
       template.html,
-      new Date(event.hour.start),
-      new Date(event.hour.end)
+      new Date(event.startAt),
+      new Date(event.endAt)
     )
-
-    creationData.storageURL = await this.azureBlobStorageClient.uploadBuffer(buff)
-
+    
+    creationData.storageURL = await this.uploadBase64(base64)
     const certificate = Certificate.create(new ObjectId(), creationData)
 
     return this.repository.save(certificate)
   }
 
+  async listAllByAttendeeId (attendeeId: string, page: number = 0, size: number = 10): Promise<PaginatedQueryResult<Certificate>> {
+    return this.repository.getAllByAttendeeId(new ObjectId(attendeeId), page, size)
+  }
 }
