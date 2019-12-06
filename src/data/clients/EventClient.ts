@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { IAppConfig } from '../../app.config'
 import { ServiceError } from '../errors/ServiceError'
 import { UnresponsiveServiceError } from '../errors/UnresponsiveServiceError'
+import { EventResponse } from './structures/EventResponse'
 
 @injectable()
 export class EventClient {
@@ -14,9 +15,9 @@ export class EventClient {
     this.client = axios.create({ baseURL: connectionData.url })
   }
 
-  async findById (id: ObjectId | string) {
+  async findById (id: ObjectId | string): Promise<EventResponse | null> {
     try {
-      const { data } = await this.client.get(`/events/${new ObjectId(id).toHexString()}`)
+      const { data } = await this.client.get(`/${new ObjectId(id).toHexString()}`)
       return data
     } catch (error) {
       if (!error.response) throw new UnresponsiveServiceError('events')

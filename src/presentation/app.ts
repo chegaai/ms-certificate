@@ -11,13 +11,13 @@ export const app = expresso(async (app, config: IAppConfig, environment: string)
   container.register('MongodbConnection', { useValue: mongodbConnection })
   container.register('UserServiceConnection', { useValue: config.microServices.user })
   container.register('EventServiceConnection', { useValue: config.microServices.event })
-  container.register('AzureBlobStorageAccountName', { useValue: config.azure.storage.accountName })
-  container.register('AzureBlobStorageAccountAccessKey', { useValue: config.azure.storage.accountAccessKey })
-  container.register('AzureBlobStorageContainerName', { useValue: config.azure.storage.containerName })
+  container.register('EventTemplateConnection', { useValue: config.microServices.template })
+  container.register('BlobStorageConfig', { useValue: config.azure.storage })
 
   const services = container.resolve(Services)
 
-  app.post('/certificates', routes.create(services.certificate))
+  app.post('/', routes.create(services.certificate))
+  app.get('/attendees/:attendeeId', routes.listAllByAttendeeId(services.certificate))
 
   app.use(errors(environment))
 })

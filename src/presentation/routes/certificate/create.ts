@@ -14,16 +14,17 @@ export function factory (service: CertificateService) {
       type: 'object',
       properties: {
         eventId: { type: 'string' },
-        ateendeeId: { type: 'string' },
+        attendeeId: { type: 'string' },
         templateId: { type: 'string' }
       },
-      required: ['eventId', 'ateendeeId', 'templateId'],
+      required: ['eventId', 'attendeeId', 'templateId'],
       additionalProperties: false
     }),
     rescue(async (req: Request, res: Response) => {
-      await service.create(req.body)
+      const certificate = await service.create(req.body)
 
       res.status(201)
+         .json(certificate)
     }),
     (err: any, _req: Request, _res: Response, next: NextFunction) => {
       if (err instanceof CertificateAlreadyExistsError) return next(boom.conflict(err.message, { code: 'certificate_already_exists' }))

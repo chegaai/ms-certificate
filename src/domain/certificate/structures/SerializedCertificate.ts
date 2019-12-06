@@ -4,7 +4,7 @@ import { Nullable } from '../../../utils/Nullable'
 export interface SerializedCertificate {
   _id: ObjectId
   eventId: ObjectId
-  ateendeeId: ObjectId
+  attendeeId: ObjectId
   templateId: ObjectId
   storageURL: Nullable<string>
   createdAt: Date
