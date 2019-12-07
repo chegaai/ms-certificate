@@ -26,7 +26,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: DATABASE_MONGODB_DBNAME
-              value: {{ default "certificate" .Values.environment.DATABASE_MONGODB_DBNAME | quote }}
+              value: {{ default "chegaai" .Values.environment.DATABASE_MONGODB_DBNAME | quote }}
             - name: DATABASE_MONGODB_URI
               value: {{ required "Mongodb URI is required" .Values.environment.DATABASE_MONGODB_URI | quote }}
             - name: AZURE_STORAGE_ACCOUNT_NAME
@@ -34,18 +34,18 @@ spec:
             - name: AZURE_STORAGE_ACCOUNT_ACCESS_KEY
               value: {{ required "Storage access key is required" .Values.environment.AZURE_STORAGE_ACCOUNT_ACCESS_KEY | quote }}
             - name: AZURE_STORAGE_CONTAINER_NAME
-              value: {{ default "profiles" .Values.environment.AZURE_STORAGE_CONTAINER_NAME | quote }}
+              value: {{ default "certificates" .Values.environment.AZURE_STORAGE_CONTAINER_NAME | quote }}
             - name: MICROSERVICE_USER_URL
-              value: {{ required "MS User URL is required" .Values.environment.MICROSERVICE_USER_URL | quote }}
+              value: {{ default (tpl "http://ms-users.{{.Release.Namespace}}.svc.cluster.local" .) .Values.environment.MICROSERVICE_USER_URL | quote }}
             - name: MICROSERVICE_EVENT_URL
-              value: {{ required "MS Event URL is required" .Values.environment.MICROSERVICE_EVENT_URL | quote }}
+              value: {{ default (tpl "http://ms-events.{{.Release.Namespace}}.svc.cluster.local" .) .Values.environment.MICROSERVICE_EVENT_URL | quote }}
             - name: MICROSERVICE_TEMPLATE_URL
-              value: {{ required "MS Template URL is required" .Values.environment.MICROSERVICE_TEMPLATE_URL | quote }}
+              value: {{ default (tpl "http://ms-templates.{{.Release.Namespace}}.svc.cluster.local" .) .Values.environment.MICROSERVICE_TEMPLATE_URL | quote }}
+            - name: NODE_ENV
+              value: {{.Release.Namespace}}
           ports:
             - name: http
               containerPort: 3000
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      imagePullSecrets:
-        - name: registry-credentials
