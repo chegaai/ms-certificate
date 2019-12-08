@@ -1,5 +1,5 @@
 {
-  "name": "ms-certificate",
+  "name": "ms-certificates",
   "version": "0.0.1",
   "description": "generate certificates",
   "main": "dist/index.js",
