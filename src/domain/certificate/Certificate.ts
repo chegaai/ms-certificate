@@ -6,7 +6,7 @@ import { CreateCertificateData } from './structures/CreateCertificateData'
 export class Certificate extends BaseEntity {
   id: ObjectId = new ObjectId()
   eventId: ObjectId = new ObjectId()
-  ateendeeId: ObjectId = new ObjectId()
+  attendeeId: ObjectId = new ObjectId()
   templateId: ObjectId = new ObjectId()
   storageURL: Nullable<string> = null
 
@@ -14,14 +14,14 @@ export class Certificate extends BaseEntity {
     const certificate = new Certificate()
     certificate.id = id
     certificate.eventId = new ObjectId(data.eventId)
-    certificate.ateendeeId = new ObjectId(data.ateendeeId)
+    certificate.attendeeId = new ObjectId(data.attendeeId)
     certificate.templateId = new ObjectId(data.templateId)
     certificate.storageURL = data.storageURL
 
     if (data.createdAt) certificate.createdAt = data.createdAt
     if (data.updatedAt) certificate.updatedAt = data.updatedAt
     if (data.deletedAt) certificate.deletedAt = data.deletedAt
-
+    console.log(certificate)
     return certificate
   }
 
@@ -36,7 +36,7 @@ export class Certificate extends BaseEntity {
     return {
       _id: this.id,
       eventId: this.eventId,
-      ateendeeId: this.ateendeeId,
+      attendeeId: this.attendeeId,
       templateId: this.templateId,
       storageURL: this.storageURL,
       createdAt: this.createdAt,

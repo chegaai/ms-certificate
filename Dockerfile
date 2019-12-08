@@ -17,7 +17,7 @@ RUN npm run build
 
 # PRODUCTION IMAGE
 
-FROM node:12-alpine
+FROM buildkite/puppeteer
 
 RUN mkdir -p /usr/app
 WORKDIR /usr/app
