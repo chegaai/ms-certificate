@@ -20,7 +20,7 @@ export interface IAppConfig extends IExpressoConfigOptions {
       url: string
     }
   },
-  azure:{
+  azure: {
     storage: {
       accountName: string,
       accountAccessKey: string,
@@ -54,11 +54,11 @@ export const config: IAppConfig = {
       url: env.get('MICROSERVICE_TEMPLATE_URL', '')
     }
   },
-  azure:{
+  azure: {
     storage: {
-      accountName: env.get('MS_CERTIFICATE_AZURE_STORAGE_ACCOUNT_NAME', 'chegaai'),
-      accountAccessKey: env.get('MS_CERTTIFICATE_AZURE_STORAGE_ACCOUNT_ACCESS_KEY', ''),
-      containerName: env.get('MS_CERTIFICATE_AZURE_STORAGE_CONTAINER_NAME', 'certificates'),
+      accountName: env.get('AZURE_STORAGE_ACCOUNT_NAME', 'chegaai'),
+      accountAccessKey: env.get('AZURE_STORAGE_ACCOUNT_ACCESS_KEY', ''),
+      containerName: env.get('AZURE_STORAGE_CONTAINER_NAME', 'certificates'),
       timeOut: 90000
     }
   }
