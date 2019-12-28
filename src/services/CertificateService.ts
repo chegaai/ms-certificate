@@ -1,7 +1,7 @@
 // import axios from 'axios'
 import { ObjectId } from 'bson'
 import { injectable } from 'tsyringe'
-import { titleCase } from 'change-case'
+import { capitalCase as titleCase } from 'change-case'
 import { renderTemplate } from '../utils/HTML'
 import { screenshotFromHtml } from '../utils/HTML'
 import { UserClient } from '../data/clients/UserClient'
@@ -28,9 +28,9 @@ export class CertificateService {
     private readonly blobStorageClient: BlobStorageClient,
   ) { }
 
-  private async uploadBase64(base64: string){
-    const url = await this.blobStorageClient.upload(base64)
-    if(!url)
+  private async uploadBase64 (base64: string) {
+    const url = await this.blobStorageClient.uploadBase64(base64, 'image/*')
+    if (!url)
       throw Error() //TODO: throw better error handler
     return url
   }
@@ -71,7 +71,7 @@ export class CertificateService {
       new Date(event.startAt),
       new Date(event.endAt)
     )
-    
+
     creationData.storageURL = await this.uploadBase64(base64)
     const certificate = Certificate.create(new ObjectId(), creationData)
 
