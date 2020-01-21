@@ -17,8 +17,8 @@ export class CertificateRepository extends MongodbRepository<Certificate, Serial
   }
 
   deserialize (data: SerializedCertificate): Certificate {
-    const { _id, ...certificateData } = data
-    return Certificate.create(_id, certificateData)
+    const { _id, attendeeId, ...certificateData } = data
+    return Certificate.create(_id, attendeeId.toHexString(), certificateData)
   }
 
   async existsByEventIdAndEmail (eventId: string, attendeeId: string): Promise<boolean> {

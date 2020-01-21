@@ -5,6 +5,9 @@ import { IExpressoConfigOptions } from '@expresso/app'
 import { IMongoParams } from '@nindoo/mongodb-data-layer'
 import { IExpressoTracerConfig } from '@expresso/tracing/dist/types'
 
+type msBase = {
+  url: string
+}
 export interface IAppConfig extends IExpressoConfigOptions {
   name: string,
   database: {
@@ -12,15 +15,9 @@ export interface IAppConfig extends IExpressoConfigOptions {
   },
   server?: IServerConfig['server'],
   microServices: {
-    user: {
-      url: string
-    },
-    event: {
-      url: string
-    },
-    template: {
-      url: string
-    }
+    profile: msBase,
+    event: msBase,
+    template: msBase
   },
   azure: {
     storage: {
@@ -49,8 +46,8 @@ export const config: IAppConfig = {
     }
   },
   microServices: {
-    user: {
-      url: env.get('MICROSERVICE_USER_URL', '')
+    profile: {
+      url: env.get('MICROSERVICE_PROFILE_URL', '')
     },
     event: {
       url: env.get('MICROSERVICE_EVENT_URL', '')

@@ -4,12 +4,12 @@ import { injectable } from 'tsyringe'
 import { capitalCase as titleCase } from 'change-case'
 import { renderTemplate } from '../utils/HTML'
 import { screenshotFromHtml } from '../utils/HTML'
-import { UserClient } from '../data/clients/UserClient'
+import { ProfileClient } from '../data/clients/ProfileClient'
 import { EventClient } from '../data/clients/EventClient'
 import { TemplateClient } from '../data/clients/TemplateClient'
 import { BlobStorageClient } from '../data/clients/BlobStorageClient'
 import { Certificate } from '../domain/certificate/Certificate'
-import { UserNotFoundError } from '../domain/certificate/errors/UserNotFoundError'
+import { ProfileNotFoundError } from '../domain/certificate/errors/ProfileNotFoundError'
 import { CertificateRepository } from '../data/repositories/CertificateRepository'
 import { EventNotFoundError } from '../domain/certificate/errors/EventNotFoundError'
 import { TemplateNotFoundError } from '../domain/certificate/errors/TemplateNotFoundError'
@@ -22,7 +22,7 @@ import { PaginatedQueryResult } from '@nindoo/mongodb-data-layer'
 export class CertificateService {
   constructor (
     private readonly repository: CertificateRepository,
-    private readonly userClient: UserClient,
+    private readonly profileClient: ProfileClient,
     private readonly eventClient: EventClient,
     private readonly templateClient: TemplateClient,
     private readonly blobStorageClient: BlobStorageClient,
@@ -51,12 +51,12 @@ export class CertificateService {
     return screenshotFromHtml({ html })
   }
 
-  async create (creationData: CreateCertificateData): Promise<Certificate> {
+  async create (profileId: string, creationData: CreateCertificateData): Promise<Certificate> {
     const event = await this.eventClient.findById(creationData.eventId)
     if (!event) throw new EventNotFoundError(creationData.eventId as string)
 
-    const attendee = await this.userClient.findById(creationData.attendeeId)
-    if (!attendee) throw new UserNotFoundError(creationData.attendeeId as string)
+    const attendee = await this.profileClient.findById(profileId)
+    if (!attendee) throw new ProfileNotFoundError(profileId as string)
 
     const template = await this.templateClient.findById(creationData.templateId)
     if (!template) throw new TemplateNotFoundError(creationData.templateId as string)
@@ -73,7 +73,7 @@ export class CertificateService {
     )
 
     creationData.storageURL = await this.uploadBase64(base64)
-    const certificate = Certificate.create(new ObjectId(), creationData)
+    const certificate = Certificate.create(new ObjectId(), profileId, creationData)
 
     return this.repository.save(certificate)
   }
