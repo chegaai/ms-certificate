@@ -11,7 +11,7 @@ export class EventClient {
 
   private readonly client: AxiosInstance
 
-  constructor (@inject('EventServiceConnection') connectionData: IAppConfig['microServices']['event']) {
+  constructor (@inject('EventClientConnection') connectionData: IAppConfig['microServices']['event']) {
     this.client = axios.create({ baseURL: connectionData.url })
   }
 

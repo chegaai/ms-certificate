@@ -11,7 +11,7 @@ export class TemplateClient {
 
   private readonly client: AxiosInstance
 
-  constructor (@inject('EventTemplateConnection') connectionData: IAppConfig['microServices']['template']) {
+  constructor (@inject('TemplateClientConnection') connectionData: IAppConfig['microServices']['template']) {
     this.client = axios.create({ baseURL: connectionData.url })
   }
 

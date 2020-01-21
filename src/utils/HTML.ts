@@ -42,9 +42,7 @@ export async function screenshotFromHtml ({ html, timeout = 2000 }: ScreenshotOp
   
     page.setContent(html)
 
-    const buffer = await page.screenshot({
-      encoding: 'binary'
-    })
+    const base64 = await page.screenshot({ encoding: "base64" }) as string;
   
     // Wait some more as `waitUntil: 'load'` or `waitUntil: 'networkidle0'
     // is not always enough, see https://goo.gl/eTuogd
@@ -52,6 +50,5 @@ export async function screenshotFromHtml ({ html, timeout = 2000 }: ScreenshotOp
     // Close browser
     await browser.close()
   
-    return buffer.toString('base64');
+    return base64
 }
-

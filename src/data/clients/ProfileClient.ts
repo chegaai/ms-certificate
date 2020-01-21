@@ -6,11 +6,11 @@ import { ServiceError } from '../errors/ServiceError'
 import { UnresponsiveServiceError } from '../errors/UnresponsiveServiceError'
 
 @injectable()
-export class UserClient {
+export class ProfileClient {
 
   private readonly client: AxiosInstance
 
-  constructor (@inject('UserServiceConnection') connectionData: IAppConfig['microServices']['user']) {
+  constructor (@inject('ProfileClientConnection') connectionData: IAppConfig['microServices']['profile']) {
     this.client = axios.create({ baseURL: connectionData.url })
   }
 
@@ -19,7 +19,7 @@ export class UserClient {
       const { data } = await this.client.get(`/${new ObjectId(id).toHexString()}`)
       return data
     } catch (error) {
-      if (!error.response) throw new UnresponsiveServiceError('users')
+      if (!error.response) throw new UnresponsiveServiceError('profiles')
       if (error.response.status === 404) return null
       throw new ServiceError(error.response)
     }

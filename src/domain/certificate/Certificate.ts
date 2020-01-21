@@ -10,18 +10,18 @@ export class Certificate extends BaseEntity {
   templateId: ObjectId = new ObjectId()
   storageURL: Nullable<string> = null
 
-  static create (id: ObjectId, data: CreateCertificateData & BaseEntityData): Certificate {
+  static create (id: ObjectId, userId: string, data: CreateCertificateData & BaseEntityData): Certificate {
     const certificate = new Certificate()
     certificate.id = id
     certificate.eventId = new ObjectId(data.eventId)
-    certificate.attendeeId = new ObjectId(data.attendeeId)
+    certificate.attendeeId = new ObjectId(userId)
     certificate.templateId = new ObjectId(data.templateId)
     certificate.storageURL = data.storageURL
 
     if (data.createdAt) certificate.createdAt = data.createdAt
     if (data.updatedAt) certificate.updatedAt = data.updatedAt
     if (data.deletedAt) certificate.deletedAt = data.deletedAt
-    console.log(certificate)
+
     return certificate
   }
 
