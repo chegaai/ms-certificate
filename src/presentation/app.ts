@@ -5,7 +5,6 @@ import errors from '@expresso/errors'
 import { Services } from '../services'
 import { IAppConfig } from '../app.config'
 import { createConnection } from '@nindoo/mongodb-data-layer'
-import tracing from '@expresso/tracing'
 
 export const app = expresso(async (app, config: IAppConfig, environment: string) => {
   const mongodbConnection = await createConnection(config.database.mongodb)
@@ -16,8 +15,6 @@ export const app = expresso(async (app, config: IAppConfig, environment: string)
   container.register('BlobStorageConfig', { useValue: config.azure.storage })
 
   const services = container.resolve(Services)
-
-  app.use(tracing.factory())
 
   app.post('/', routes.create(services.certificate))
   app.post('/certificates', routes.create(services.certificate))
